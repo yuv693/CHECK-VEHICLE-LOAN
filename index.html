@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Vehicle Loan - मुफ़्त में गाड़ी का लोन स्टेटस जांचें</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f4f7f6; color: #333; }
+        header { background: #0d6efd; color: white; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center; }
+        h1 { font-size: 22px; margin-bottom: 10px; }
+        p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; text-transform: uppercase; }
+        button { background: #0d6efd; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0b5ed7; }
+        
+        /* सर्च रिजल्ट की डिज़ाइन */
+        .result-box { margin-top: 25px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; display: none; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 15px; }
+        .status-active { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .status-clean { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 6px; }
+        .warning-box { background: #fff8e6; border-left: 4px solid #ffc107; padding: 12px; font-size: 13px; color: #555; border-radius: 4px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h2>checkvehicleloan.com</h2>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1>गाड़ी का लोन स्टेटस जांचें</h1>
+            <p class="subtitle">गाड़ी नंबर डालें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या नहीं</p>
+
+            <form id="loanForm" onsubmit="searchLoan(event)">
+                <div class="input-group">
+                    <input type="text" id="vehicleNo" placeholder="उदा. GJ01AB1234" required maxlength="10">
+                    <button type="submit" id="btnText">🔍 चेक करें</button>
+                </div>
+            </form>
+
+            <!-- सर्च का परिणाम यहाँ दिखेगा -->
+            <div id="resultBox" class="result-box">
+                <div id="badge" class="status-badge status-active">⚠️ ACTIVE LOAN (गाड़ी पर लोन चालू है)</div>
+                
+                <div class="info-row">
+                    <span>गाड़ी नंबर:</span>
+                    <strong id="resNo">GJ-01-AB-1234</strong>
+                </div>
+                <div class="info-row">
+                    <span>फाइनेंस बैंक/कंपनी:</span>
+                    <strong id="resBank">HDFC BANK LTD</strong>
+                </div>
+                <div class="info-row">
+                    <span>गाड़ी की श्रेणी:</span>
+                    <strong id="resClass">Two Wheeler / Scooter</strong>
+                </div>
+
+                <div class="warning-box">
+                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से सभी दस्तावेज़ जांचें
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function searchLoan(event) {
+            event.preventDefault();
+            const input = document.getElementById('vehicleNo').value.toUpperCase();
+            const btn = document.getElementById('btnText');
+            const resultBox = document.getElementById('resultBox');
+
+            if(!input) return;
+
+            btn.innerText = "जांच जारी है...";
+            
+            // टेस्टिंग डेमो के लिए (बाद में यह Vahan API से कनेक्ट होगा)
+            setTimeout(() => {
+                btn.innerText = "🔍 चेक करें";
+                resultBox.style.display = "block";
+                document.getElementById('resNo').innerText = input;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
