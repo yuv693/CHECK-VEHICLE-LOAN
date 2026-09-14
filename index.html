@@ -16,6 +16,7 @@
         input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; text-transform: uppercase; }
         button { background: #0d6efd; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         button:hover { background: #0b5ed7; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
         
         /* सर्च रिजल्ट की डिज़ाइन */
         .result-box { margin-top: 25px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; display: none; }
@@ -24,6 +25,8 @@
         .status-clean { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 6px; }
         .warning-box { background: #fff8e6; border-left: 4px solid #ffc107; padding: 12px; font-size: 13px; color: #555; border-radius: 4px; margin-top: 15px; }
+        .error-box { background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; font-size: 13px; color: #721c24; border-radius: 4px; margin-top: 15px; }
+        .loading { text-align: center; color: #666; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -39,7 +42,7 @@
 
             <form id="loanForm" onsubmit="searchLoan(event)">
                 <div class="input-group">
-                    <input type="text" id="vehicleNo" placeholder="उदा. GJ01AB1234" required maxlength="10">
+                    <input type="text" id="vehicleNo" placeholder="उदा. UP16CD1993" required maxlength="15">
                     <button type="submit" id="btnText">🔍 चेक करें</button>
                 </div>
             </form>
@@ -50,41 +53,117 @@
                 
                 <div class="info-row">
                     <span>गाड़ी नंबर:</span>
-                    <strong id="resNo">GJ-01-AB-1234</strong>
+                    <strong id="resNo">--</strong>
                 </div>
                 <div class="info-row">
                     <span>फाइनेंस बैंक/कंपनी:</span>
-                    <strong id="resBank">HDFC BANK LTD</strong>
+                    <strong id="resBank">--</strong>
                 </div>
                 <div class="info-row">
                     <span>गाड़ी की श्रेणी:</span>
-                    <strong id="resClass">Two Wheeler / Scooter</strong>
+                    <strong id="resClass">--</strong>
+                </div>
+                <div class="info-row">
+                    <span>मालिक का नाम:</span>
+                    <strong id="resOwner">--</strong>
                 </div>
 
                 <div class="warning-box">
-                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से सभी दस्तावेज़ जांचें
+                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से वाहन दस्तावेज़ सत्यापित करें।
                 </div>
+            </div>
+
+            <div id="errorBox" class="error-box" style="display: none;">
+                <strong id="errorMsg">त्रुटि हुई। कृपया पुनः प्रयास करें।</strong>
             </div>
         </div>
     </div>
 
     <script>
-        function searchLoan(event) {
+        // आपकी RapidAPI Key को यहाँ सेट करें (सुरक्षित रूप से)
+        const API_KEY = "आपकी_RapidAPI_Key_यहाँ_पेस्ट_करें";
+        const API_HOST = "rto-vehicle-information-india.p.rapidapi.com";
+
+        async function searchLoan(event) {
             event.preventDefault();
-            const input = document.getElementById('vehicleNo').value.toUpperCase();
+            const input = document.getElementById('vehicleNo').value.trim().toUpperCase();
             const btn = document.getElementById('btnText');
             const resultBox = document.getElementById('resultBox');
+            const errorBox = document.getElementById('errorBox');
 
-            if(!input) return;
+            if(!input) {
+                alert("कृपया गाड़ी नंबर दर्ज करें");
+                return;
+            }
 
+            // UI अपडेट
+            btn.disabled = true;
             btn.innerText = "जांच जारी है...";
-            
-            // टेस्टिंग डेमो के लिए (बाद में यह Vahan API से कनेक्ट होगा)
-            setTimeout(() => {
+            resultBox.style.display = "none";
+            errorBox.style.display = "none";
+
+            try {
+                const response = await fetch(`https://${API_HOST}/getVehicleChallan`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-rapidapi-host": API_HOST,
+                        "x-rapidapi-key": API_KEY
+                    },
+                    body: JSON.stringify({
+                        vehicle_no: input,
+                        consent: "Y",
+                        consent_text: "I hereby give my consent for the API to fetch my information"
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("API Response:", data);
+
+                // डेटा को UI में दिखाएँ
+                if (data && data.vehicle_no) {
+                    // गाड़ी नंबर को सही फॉर्मेट में दिखाएँ
+                    const formattedNo = data.vehicle_no.replace(/(.{2})(.{2})(.{2})(.{4})/, '$1-$2-$3-$4');
+                    document.getElementById('resNo').innerText = formattedNo;
+                    
+                    // अन्य जानकारी भरें
+                    document.getElementById('resBank').innerText = data.finance_company || "जानकारी उपलब्ध नहीं";
+                    document.getElementById('resClass').innerText = data.vehicle_class || "जानकारी उपलब्ध नहीं";
+                    document.getElementById('resOwner').innerText = data.owner_name || "जानकारी उपलब्ध नहीं";
+
+                    // स्टेटस बैज अपडेट करें
+                    const badge = document.getElementById('badge');
+                    if (data.loan_active || data.finance_company) {
+                        badge.className = "status-badge status-active";
+                        badge.innerText = "⚠️ ACTIVE LOAN (गाड़ी पर लोन चालू है)";
+                    } else {
+                        badge.className = "status-badge status-clean";
+                        badge.innerText = "✅ CLEAN (गाड़ी पर कोई लोन नहीं)";
+                    }
+
+                    resultBox.style.display = "block";
+                } else {
+                    showError("कोई डेटा नहीं मिला। कृपया गाड़ी नंबर सत्यापित करें।");
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                showError("डेटा लोड करने में समस्या आई। कृपया बाद में पुनः प्रयास करें।");
+            } finally {
+                btn.disabled = false;
                 btn.innerText = "🔍 चेक करें";
-                resultBox.style.display = "block";
-                document.getElementById('resNo').innerText = input;
-            }, 1000);
+            }
+        }
+
+        function showError(message) {
+            const errorBox = document.getElementById('errorBox');
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.innerText = message;
+            errorBox.style.display = "block";
         }
     </script>
 </body>
