@@ -30,7 +30,6 @@
     </style>
 </head>
 <body>
-
     <header>
         <h2>checkvehicleloan.com</h2>
     </header>
@@ -38,7 +37,7 @@
     <div class="container">
         <div class="card">
             <h1>गाड़ी का लोन स्टेटस जांचें</h1>
-            <p class="subtitle">गाड़ी नंबर डालें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या नहीं</p>
+            <p class="subtitle">गाड़ी नंबर डालें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या कोई लोन नहीं है।</p>
 
             <form id="loanForm" onsubmit="searchLoan(event)">
                 <div class="input-group">
@@ -69,7 +68,7 @@
                 </div>
 
                 <div class="warning-box">
-                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से वाहन दस्तावेज़ सत्यापित करें।
+                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से पुष्टि करें और सभी कानूनी दस्तावेज चेक करें।
                 </div>
             </div>
 
@@ -80,8 +79,8 @@
     </div>
 
     <script>
-        // आपकी RapidAPI Key को यहाँ सेट करें (सुरक्षित रूप से)
-        const API_KEY = "आपकी_RapidAPI_Key_यहाँ_पेस्ट_करें";
+        // ⚠️ महत्वपूर्ण: API Key को environment variable से लें या backend से भेजवाएं
+        // सीधे frontend में API key expose न करें!
         const API_HOST = "rto-vehicle-information-india.p.rapidapi.com";
 
         async function searchLoan(event) {
@@ -103,17 +102,11 @@
             errorBox.style.display = "none";
 
             try {
-                const response = await fetch(`https://${API_HOST}/getVehicleChallan`, {
+                // आपके backend से API key लें - सीधे frontend में न रखें
+                const response = await fetch('/api/check-vehicle', {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
-                        "x-rapidapi-host": API_HOST,
-                        "x-rapidapi-key": API_KEY curl --request POST \
-	--url https://rto-vehicle-information-india.p.rapidapi.com/getVehicleChallan \
-	--header 'Content-Type: application/json' \
-	--header 'x-rapidapi-host: rto-vehicle-information-india.p.rapidapi.com' \
-	--header 'x-rapidapi-key: 9e90b931e9mshbfd1742e256fe30p1e9cdajsn13d954df9c97' \
-	--data '{"vehicle_no":"UP16CD1993","consent":"Y","consent_text":"I hereby give my consent for Eccentric Labs API to fetch my information"}'
+                        "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
                         vehicle_no: input,
