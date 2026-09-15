@@ -383,7 +383,12 @@
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    body: JSON.stringify({
+                    body: JSON.stringify({body: JSON.stringify({
+  vehicle_no: vehicleNum,
+  consent: "Y",
+  consent_text: "I hereby give my consent"
+})
+
                         vehicle_no: input,
                         consent: "Y",
                         consent_text: "I hereby give my consent for the API to fetch my vehicle information"
