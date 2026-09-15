@@ -3,58 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check Vehicle Loan - गाड़ी का लोन स्टेटस जांचें</title>
+  <title>Check Vehicle Loan</title>
   <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-    body { background-color: #f4f7f6; color: #333; padding: 20px; display: flex; justify-content: center; }
-    .container { max-width: 600px; width: 100%; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-    h1 { font-size: 22px; color: #1a252f; margin-bottom: 8px; }
-    p.subtitle { color: #666; font-size: 14px; margin-bottom: 20px; }
-    .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-    input[type="text"] { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 16px; text-transform: uppercase; }
-    button { background: #0d6efd; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; cursor: pointer; transition: 0.3s; }
-    button:hover { background: #0b5ed7; }
-    .result-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #f8f9fa; border: 1px solid #e9ecef; display: none; text-align: left; }
-    .error-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; display: none; }
-    pre { background: #272822; color: #f8f8f2; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; margin-top: 10px; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7f6; text-align: center; }
+    .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+    input { width: 70%; padding: 10px; margin-right: 5px; font-size: 16px; }
+    button { padding: 10px 15px; font-size: 16px; background: #28a745; color: white; border: none; cursor: pointer; }
+    #resultBox { margin-top: 20px; text-align: left; background: #eee; padding: 10px; border-radius: 5px; display: none; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h1>गाड़ी का लोन स्टेटस जांचें</h1>
-    <p class="subtitle">गाड़ी नंबर डालें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या नहीं</p>
+    <h2>Vehicle Challan / Loan Status</h2>
+    <input type="text" id="vehicleInput" placeholder="Enter Vehicle No (e.g. UP16CD1993)">
+    <button onclick="checkLoan()">Check</button>
 
-    <div class="input-group">
-      <input type="text" id="vehicleInput" placeholder="जैसे: GJ25AE6786" />
-      <button onclick="checkLoan()">🔍 चेक करें</button>
-    </div>
-
-    <div id="errorBox" class="error-box"></div>
-    <div id="resultBox" class="result-box">
-      <h3>API Response:</h3>
+    <div id="resultBox">
       <pre id="jsonDisplay"></pre>
     </div>
   </div>
 
   <script>
     async function checkLoan() {
-      const vehicleInput = document.getElementById('vehicleInput');
-      const vehicleNum = vehicleInput ? vehicleInput.value.trim().toUpperCase() : '';
+      const vehicleNum = document.getElementById('vehicleInput').value.trim();
       const resultBox = document.getElementById('resultBox');
-      const errorBox = document.getElementById('errorBox');
       const jsonDisplay = document.getElementById('jsonDisplay');
-      const btn = document.querySelector('button');
 
       if (!vehicleNum) {
-        alert("कृपया गाड़ी नंबर दर्ज करें");
+        alert("Please enter a vehicle number");
         return;
       }
 
-      btn.disabled = true;
-      btn.innerText = "जांच जारी है...";
       resultBox.style.display = "none";
-      errorBox.style.display = "none";
 
       try {
         const targetUrl = "https://rto-vehicle-information-india.p.rapidapi.com/getVehicleChallan";
@@ -63,13 +44,8 @@
           headers: {
             "Content-Type": "application/json",
             "x-rapidapi-host": "rto-vehicle-information-india.p.rapidapi.com",
-            "x-rapidapi-key": "curl --request POST \
-	--url https://rto-vehicle-information-india.p.rapidapi.com/getVehicleChallan \
-	--header 'Content-Type: application/json' \
-	--header 'x-rapidapi-host: rto-vehicle-information-india.p.rapidapi.com' \
-	--header 'x-rapidapi-key: 9e90b931e9mshbfd1742e256fe30p1e9cdajsn13d954df9c97' \
-	--data '{"vehicle_no":"UP16CD1993","consent":"Y","consent_text":"I hereby give my consent for Eccentric Labs API to fetch my information"}'
-	},
+            "x-rapidapi-key": "अपनी_RAPIDAPI_KEY_यहाँ_पेस्ट_करें"
+          },
           body: JSON.stringify({
             vehicle_no: vehicleNum,
             consent: "Y",
@@ -78,20 +54,11 @@
         });
 
         const data = await response.json();
+        resultBox.style.display = "block";
+        jsonDisplay.innerText = JSON.stringify(data, null, 2);
 
-        if (response.ok) {
-          resultBox.style.display = "block";
-          jsonDisplay.innerText = JSON.stringify(data, null, 2);
-        } else {
-          throw new Error(data.message || "डेटा प्राप्त नहीं हो सका");
-        }
       } catch (error) {
-        console.error("Error:", error);
-        errorBox.style.display = "block";
-        errorBox.innerText = "डेटा लोड करने में समस्या आई। कृपया बाद में पुनः प्रयास करें।";
-      } finally {
-        btn.disabled = false;
-        btn.innerText = "🔍 चेक करें";
+        alert("Error fetching data: " + error.message);
       }
     }
   </script>
