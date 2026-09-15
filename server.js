@@ -17,7 +17,8 @@ app.post('/api/check-vehicle', async (req, res) => {
       headers: {
         "Content-Type": "application/json",
         "x-rapidapi-host": "rto-vehicle-information-india.p.rapidapi.com",
-        "x-rapidapi-key": "अपनी_RAPIDAPI_KEY_यहाँ_लिखें"
+        "x-rapidapi-key": "9e90b931e9mshbXXXXXXXXXXXXXXXXXXXXX"
+
       },
       body: JSON.stringify({
         vehicle_no: vehicle_no,
