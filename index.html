@@ -1,55 +1,331 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Check Vehicle Loan</title>
+  <title>Vehicle Loan & EMI Checker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f7f6; text-align: center; }
-    .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-    input { width: 70%; padding: 10px; margin-right: 5px; font-size: 16px; }
-    button { padding: 10px 15px; font-size: 16px; background: #28a745; color: white; border: none; cursor: pointer; }
-    #resultBox { margin-top: 20px; text-align: left; background: #eee; padding: 10px; border-radius: 5px; display: none; word-wrap: break-word; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    body {
+      background: linear-gradient(-45deg, #0f172a, #1e1b4b, #311042, #0284c7);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 35px 28px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      text-align: center;
+    }
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+    .input-box {
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .input-box i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #38bdf8;
+      font-size: 18px;
+    }
+    input {
+      width: 100%;
+      padding: 16px 16px 16px 48px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      font-size: 16px;
+      color: #ffffff;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+    }
+    button.btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+    button.btn-success {
+      width: 100%;
+      padding: 14px;
+      margin-top: 15px;
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 6px 15px rgba(22, 163, 74, 0.3);
+    }
+    .loader {
+      display: none;
+      margin-top: 20px;
+      color: #38bdf8;
+      font-size: 14px;
+    }
+    .result-section {
+      display: none;
+      margin-top: 25px;
+      text-align: left;
+    }
+    .info-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #38bdf8;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .data-row:last-child { border-bottom: none; }
+    .data-label { color: #94a3b8; }
+    .data-value { font-weight: 600; color: #f8fafc; }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-yes { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .badge-no { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <h2>Vehicle Challan / Loan Status</h2>
-    <input type="text" id="vehicleInput" placeholder="Enter Vehicle No (e.g. GJ25K9202)">
-    <button onclick="checkLoan()">Check</button>
+    <div class="brand-badge">
+      <i class="fa-solid fa-shield-halved"></i> RTO Live Verifier
+    </div>
+    
+    <h1>Vehicle Status</h1>
+    <p class="subtitle">Check Bank Finance, Monthly EMI & NOC</p>
 
-    <div id="resultBox">
-      <pre id="jsonDisplay"></pre>
+    <div class="input-box">
+      <i class="fa-solid fa-car-side"></i>
+      <input type="text" id="vehicleNo" placeholder="Enter Registration No.">
+    </div>
+
+    <button class="btn-primary" onclick="checkVehicle()">
+      <i class="fa-solid fa-bolt"></i> Fetch Vehicle Info
+    </button>
+
+    <div id="loader" class="loader">
+      <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live database info...
+    </div>
+
+    <div id="result" class="result-section">
+      <div class="info-card">
+        <div class="card-title">
+          <i class="fa-solid fa-building-columns"></i> Finance Details
+        </div>
+        <div class="data-row">
+          <span class="data-label">Loan Active</span>
+          <span id="loanActive" class="data-value">-</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Bank Name</span>
+          <span id="bankName" class="data-value">-</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="card-title">
+          <i class="fa-solid fa-receipt"></i> EMI Breakdown
+        </div>
+        <div class="data-row">
+          <span class="data-label">Monthly EMI</span>
+          <span id="monthlyEmi" class="data-value">-</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Pending EMIs</span>
+          <span id="pendingEmi" class="data-value">-</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Overdue Amount</span>
+          <span id="overdueAmt" class="data-value" style="color: #f87171;">-</span>
+        </div>
+      </div>
+
+      <!-- NOC Download Button -->
+      <button id="downloadNocBtn" class="btn-success" onclick="downloadNOC()" style="display:none;">
+        <i class="fa-solid fa-file-arrow-down"></i> Download NOC Certificate
+      </button>
     </div>
   </div>
 
   <script>
-    async function checkLoan() {
-      const vehicleNum = document.getElementById('vehicleInput').value.trim();
-      const resultBox = document.getElementById('resultBox');
-      const jsonDisplay = document.getElementById('jsonDisplay');
+    async function checkVehicle() {
+      const vehicleNo = document.getElementById('vehicleNo').value.trim();
+      const loader = document.getElementById('loader');
+      const result = document.getElementById('result');
+      const nocBtn = document.getElementById('downloadNocBtn');
 
-      if (!vehicleNum) {
-        alert("Please enter a vehicle number");
+      if (!vehicleNo) {
+        alert('Please enter a vehicle registration number!');
         return;
       }
 
-      jsonDisplay.innerText = "Loading...";
-      resultBox.style.display = "block";
+      result.style.display = 'none';
+      loader.style.display = 'block';
 
       try {
-        const response = await fetch("/api/check-vehicle", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vehicle_no: vehicleNum })
+        const response = await fetch('/api/check-vehicle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vehicle_no: vehicleNo })
         });
 
         const data = await response.json();
-        jsonDisplay.innerText = JSON.stringify(data, null, 2);
-      } catch (error) {
-        alert("Error fetching data: " + error.message);
+        loader.style.display = 'none';
+
+        if (data.message || data.error) {
+          alert(data.message || data.error);
+          return;
+        }
+
+        const details = data.result || data.data || data;
+
+        document.getElementById('loanActive').innerHTML = details.financer || details.is_financed ? 
+          '<span class="badge badge-yes">Active Loan</span>' : '<span class="badge badge-no">Clear / No Loan</span>';
+        
+        document.getElementById('bankName').innerText = details.financer || details.bank_name || 'N/A';
+        document.getElementById('monthlyEmi').innerText = details.emi_amount ? '₹' + details.emi_amount : 'N/A';
+        document.getElementById('pendingEmi').innerText = details.pending_emi || details.total_pending_emi || '0';
+        document.getElementById('overdueAmt').innerText = details.overdue_amount ? '₹' + details.overdue_amount : '₹0';
+
+        // Show NOC button if no overdue
+        if (!details.overdue_amount || details.overdue_amount == 0) {
+          nocBtn.style.display = 'flex';
+        } else {
+          nocBtn.style.display = 'none';
+        }
+
+        result.style.display = 'block';
+
+      } catch (err) {
+        loader.style.display = 'none';
+        alert('Error: ' + err.message);
       }
+    }
+
+    function downloadNOC() {
+      const vehicleNo = document.getElementById('vehicleNo').value.toUpperCase() || "VEHICLE_NO";
+      const bankName = document.getElementById('bankName').innerText || "FINANCE BANK";
+
+      const nocContent = `
+====================================================
+            NO DUES CERTIFICATE (NOC)
+====================================================
+
+Date: ${new Date().toLocaleDateString()}
+
+To Whom It May Concern,
+
+This is to certify that the vehicle bearing Registration Number: ${vehicleNo}
+financed through ${bankName} has no pending dues or outstanding EMIs as per current RTO records.
+
+Status: CLEARED / NO DUES PENDING
+Issued By: RTO Vehicle Verification System
+
+----------------------------------------------------
+Note: This is a system-generated document for reference.
+====================================================
+      `;
+
+      const blob = new Blob([nocContent], { type: 'text/plain' });
+      const element = document.createElement('a');
+      element.href = URL.createObjectURL(blob);
+      element.download = `NOC_${vehicleNo}.txt`;
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
     }
   </script>
 
