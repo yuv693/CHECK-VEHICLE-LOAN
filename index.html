@@ -240,7 +240,36 @@
     </div>
   </div>
 
-  <script>
+  <script>function generateNOC(vehicleData) {
+  const nocContent = `
+=================================================
+             NO OBJECTION CERTIFICATE
+=================================================
+
+Date: ${new Date().toLocaleDateString()}
+
+To Whom It May Concern,
+
+This is to certify that Vehicle Number: ${vehicleData.rc_regn_no || 'N/A'}
+Owner Name: ${vehicleData.rc_owner_name || 'N/A'}
+Engine No: ${vehicleData.rc_eng_no || 'N/A'}
+Chassis No: ${vehicleData.rc_chasi_no || 'N/A'}
+
+Financier Status: ${vehicleData.rc_financer || 'NO HYPOTHECATION / CLEAR'}
+
+This vehicle has no pending objections as per available RTO records.
+
+=================================================
+  `;
+
+  const blob = new Blob([nocContent], { type: 'text/plain' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `NOC_${vehicleData.rc_regn_no || 'Vehicle'}.txt`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
     async function checkVehicle() {
       const vehicleNo = document.getElementById('vehicleNo').value.trim();
       const loader = document.getElementById('loader');
