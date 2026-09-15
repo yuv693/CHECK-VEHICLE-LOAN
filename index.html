@@ -9,14 +9,14 @@
     .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
     input { width: 70%; padding: 10px; margin-right: 5px; font-size: 16px; }
     button { padding: 10px 15px; font-size: 16px; background: #28a745; color: white; border: none; cursor: pointer; }
-    #resultBox { margin-top: 20px; text-align: left; background: #eee; padding: 10px; border-radius: 5px; display: none; }
+    #resultBox { margin-top: 20px; text-align: left; background: #eee; padding: 10px; border-radius: 5px; display: none; word-wrap: break-word; }
   </style>
 </head>
 <body>
 
   <div class="container">
     <h2>Vehicle Challan / Loan Status</h2>
-    <input type="text" id="vehicleInput" placeholder="Enter Vehicle No (e.g. UP16CD1993)">
+    <input type="text" id="vehicleInput" placeholder="Enter Vehicle No (e.g. GJ25K9202)">
     <button onclick="checkLoan()">Check</button>
 
     <div id="resultBox">
@@ -35,31 +35,18 @@
         return;
       }
 
-      resultBox.style.display = "none";
+      jsonDisplay.innerText = "Loading...";
+      resultBox.style.display = "block";
 
       try {
-        const targetUrl = "https://rto-vehicle-information-india.p.rapidapi.com/getVehicleChallan";
-         const response = await fetch("https://thingproxy.freeboard.io/fetch/" + targetUrl, {
-
-
+        const response = await fetch("/api/check-vehicle", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-rapidapi-host": "rto-vehicle-information-india.p.rapidapi.com",
-            "x-rapidapi-key": "9e90b931e9mshbfd1742e256fe"
-
-          },
-          body: JSON.stringify({
-            vehicle_no: vehicleNum,
-            consent: "Y",
-            consent_text: "I hereby give my consent"
-          })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vehicle_no: vehicleNum })
         });
 
         const data = await response.json();
-        resultBox.style.display = "block";
         jsonDisplay.innerText = JSON.stringify(data, null, 2);
-
       } catch (error) {
         alert("Error fetching data: " + error.message);
       }
