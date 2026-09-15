@@ -3,52 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check Vehicle Loan - मुफ़्त में गाड़ी का लोन स्टेटस जांचें</title>
+    <title>Check Vehicle Loan - गाड़ी का लोन स्टेटस जांचें</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f4f7f6; color: #333; }
-        header { background: #0d6efd; color: white; padding: 20px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .container { max-width: 600px; margin: 40px auto; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); text-align: center; }
-        h1 { font-size: 22px; margin-bottom: 10px; }
-        p.subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 6px; text-transform: uppercase; }
-        button { background: #0d6efd; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #0b5ed7; }
-        button:disabled { background: #6c757d; cursor: not-allowed; }
         
-        /* सर्च रिजल्ट की डिज़ाइन */
-        .result-box { margin-top: 25px; text-align: left; border-top: 1px solid #eee; padding-top: 20px; display: none; }
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin-bottom: 15px; }
-        .status-active { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .status-clean { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 15px; border-bottom: 1px dashed #eee; padding-bottom: 6px; }
-        .warning-box { background: #fff8e6; border-left: 4px solid #ffc107; padding: 12px; font-size: 13px; color: #555; border-radius: 4px; margin-top: 15px; }
-        .error-box { background: #f8d7da; border-left: 4px solid #dc3545; padding: 12px; font-size: 13px; color: #721c24; border-radius: 4px; margin-top: 15px; }
-        .loading { text-align: center; color: #666; font-size: 14px; }
+        body { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        header { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        header h2 { font-size: 24px; letter-spacing: 0.5px; }
+        
+        .container { 
+            max-width: 600px; 
+            width: 100%;
+            margin-top: 100px;
+            padding: 20px; 
+        }
+        
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 { 
+            font-size: 26px; 
+            margin-bottom: 10px; 
+            color: #1a252f;
+            font-weight: 700;
+        }
+        
+        p.subtitle { 
+            color: #666; 
+            font-size: 15px; 
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .input-group { 
+            display: flex; 
+            gap: 10px; 
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="text"] { 
+            flex: 1; 
+            min-width: 200px;
+            padding: 13px 15px; 
+            font-size: 16px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            text-transform: uppercase;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+        
+        input[type="text"]::placeholder {
+            color: #999;
+        }
+        
+        button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            border: none; 
+            padding: 13px 25px; 
+            font-size: 16px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: all 0.3s;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled { 
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* रिजल्ट बॉक्स डिज़ाइन */
+        .result-box { 
+            margin-top: 25px; 
+            text-align: left; 
+            border-top: 2px solid #eee; 
+            padding-top: 20px; 
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .status-badge { 
+            display: inline-block; 
+            padding: 8px 16px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            font-size: 14px; 
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active { 
+            background: #fff3cd; 
+            color: #856404; 
+            border: 2px solid #ffeeba;
+        }
+        
+        .status-clean { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 2px solid #c3e6cb;
+        }
+        
+        .info-row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 12px; 
+            font-size: 15px; 
+            border-bottom: 1px dashed #eee; 
+            padding-bottom: 10px;
+        }
+        
+        .info-row span {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .info-row strong {
+            color: #1a252f;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        
+        .warning-box { 
+            background: #fff8e6; 
+            border-left: 5px solid #ffc107; 
+            padding: 15px; 
+            font-size: 13px; 
+            color: #555; 
+            border-radius: 6px; 
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        
+        .warning-box strong {
+            color: #856404;
+        }
+        
+        .error-box { 
+            background: #f8d7da; 
+            border-left: 5px solid #dc3545; 
+            padding: 15px; 
+            font-size: 13px; 
+            color: #721c24; 
+            border-radius: 6px; 
+            margin-top: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        .error-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .loading { 
+            text-align: center; 
+            color: #666; 
+            font-size: 14px; 
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            font-size: 12px;
+            margin-left: 5px;
+            cursor: help;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        @media (max-width: 600px) {
+            header { padding: 15px; }
+            .card { padding: 20px; }
+            h1 { font-size: 20px; }
+            .input-group { flex-direction: column; }
+            input[type="text"], button { width: 100%; }
+        }
     </style>
 </head>
 <body>
     <header>
-        <h2>checkvehicleloan.com</h2>
+        <h2>🚗 checkvehicleloan.com</h2>
     </header>
 
     <div class="container">
         <div class="card">
             <h1>गाड़ी का लोन स्टेटस जांचें</h1>
-            <p class="subtitle">गाड़ी नंबर डालें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या कोई लोन नहीं है।</p>
+            <p class="subtitle">अपनी गाड़ी का रजिस्ट्रेशन नंबर दर्ज करें और तुरंत पता करें कि गाड़ी पर लोन एक्टिव है या नहीं</p>
 
             <form id="loanForm" onsubmit="searchLoan(event)">
                 <div class="input-group">
-                    <input type="text" id="vehicleNo" placeholder="उदा. UP16CD1993" required maxlength="15">
+                    <input 
+                        type="text" 
+                        id="vehicleNo" 
+                        placeholder="उदा. UP16CD1993 या GJ25AE6786" 
+                        required 
+                        maxlength="20"
+                        autocomplete="off"
+                    >
                     <button type="submit" id="btnText">🔍 चेक करें</button>
                 </div>
             </form>
 
             <!-- सर्च का परिणाम यहाँ दिखेगा -->
             <div id="resultBox" class="result-box">
-                <div id="badge" class="status-badge status-active">⚠️ ACTIVE LOAN (गाड़ी पर लोन चालू है)</div>
+                <div id="badge" class="status-badge status-active">⚠️ ACTIVE LOAN</div>
                 
                 <div class="info-row">
                     <span>गाड़ी नंबर:</span>
@@ -68,81 +322,87 @@
                 </div>
 
                 <div class="warning-box">
-                    🛑 <strong>सुरक्षा सुझाव:</strong> पुरानी गाड़ी खरीदने से पहले वर्तमान मालिक से पुष्टि करें और सभी कानूनी दस्तावेज चेक करें।
+                    🛑 <strong>महत्वपूर्ण सुरक्षा सुझाव:</strong><br>
+                    पुरानी गाड़ी खरीदने से पहले:<br>
+                    ✓ इस जानकारी को वर्तमान मालिक से सत्यापित करें<br>
+                    ✓ RTO से ऑफिशियल दस्तावेज़ प्राप्त करें<br>
+                    ✓ खरीद-फरोख्त से पहले लीगल सलाह लें
                 </div>
             </div>
 
-            <div id="errorBox" class="error-box" style="display: none;">
+            <div id="errorBox" class="error-box">
                 <strong id="errorMsg">त्रुटि हुई। कृपया पुनः प्रयास करें।</strong>
+                <div class="help-text" id="errorDetails"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ महत्वपूर्ण: API Key को environment variable से लें या backend से भेजवाएं
-        // सीधे frontend में API key expose न करें!
-        const API_HOST = "rto-vehicle-information-india.p.rapidapi.com";
-
+        // सभी डेटा backend से आएगा - frontend में कोई API key नहीं
+        const API_ENDPOINT = '/api/check-vehicle';
+        
+        // गाड़ी नंबर को validate करने का फंक्शन
+        function validateVehicleNumber(vehicleNo) {
+            // भारतीय रजिस्ट्रेशन फॉर्मेट: AA00AA0000 (10-12 अक्षर)
+            const pattern = /^[A-Z]{2}[0-9]{2}[A-Z]{0,2}[0-9]{4,6}$/;
+            return pattern.test(vehicleNo.toUpperCase());
+        }
+        
+        // लोन चेक करने का मेन फंक्शन
         async function searchLoan(event) {
             event.preventDefault();
+            
             const input = document.getElementById('vehicleNo').value.trim().toUpperCase();
             const btn = document.getElementById('btnText');
             const resultBox = document.getElementById('resultBox');
             const errorBox = document.getElementById('errorBox');
+            const errorDetails = document.getElementById('errorDetails');
 
-            if(!input) {
-                alert("कृपया गाड़ी नंबर दर्ज करें");
+            // इनपुट वेलिडेशन
+            if (!input) {
+                showError("कृपया गाड़ी नंबर दर्ज करें");
                 return;
             }
 
-            // UI अपडेट
+            if (!validateVehicleNumber(input)) {
+                showError("कृपया सही गाड़ी नंबर दर्ज करें। उदा: UP16CD1993 या GJ25AE6786");
+                return;
+            }
+
+            // UI अपडेट करें
             btn.disabled = true;
-            btn.innerText = "जांच जारी है...";
+            btn.innerHTML = '<span class="spinner"></span>जांच जारी है...';
             resultBox.style.display = "none";
             errorBox.style.display = "none";
 
             try {
-                // आपके backend से API key लें - सीधे frontend में न रखें
-                const response = await fetch('/api/check-vehicle', {
+                // Backend से API कॉल करें (API key backend में सुरक्षित रहेगी)
+                const response = await fetch(API_ENDPOINT, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
                     },
                     body: JSON.stringify({
                         vehicle_no: input,
                         consent: "Y",
-                        consent_text: "I hereby give my consent for the API to fetch my information"
-                    })
+                        consent_text: "I hereby give my consent for the API to fetch my vehicle information"
+                    }),
+                    timeout: 10000 // 10 सेकंड का टाइमआउट
                 });
 
                 if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMessage = errorData.message || `Server Error: ${response.status}`;
+                    throw new Error(errorMessage);
                 }
 
                 const data = await response.json();
-                console.log("API Response:", data);
+                console.log("API Response received");
 
                 // डेटा को UI में दिखाएँ
                 if (data && data.vehicle_no) {
-                    // गाड़ी नंबर को सही फॉर्मेट में दिखाएँ
-                    const formattedNo = data.vehicle_no.replace(/(.{2})(.{2})(.{2})(.{4})/, '$1-$2-$3-$4');
-                    document.getElementById('resNo').innerText = formattedNo;
-                    
-                    // अन्य जानकारी भरें
-                    document.getElementById('resBank').innerText = data.finance_company || "जानकारी उपलब्ध नहीं";
-                    document.getElementById('resClass').innerText = data.vehicle_class || "जानकारी उपलब्ध नहीं";
-                    document.getElementById('resOwner').innerText = data.owner_name || "जानकारी उपलब्ध नहीं";
-
-                    // स्टेटस बैज अपडेट करें
-                    const badge = document.getElementById('badge');
-                    if (data.loan_active || data.finance_company) {
-                        badge.className = "status-badge status-active";
-                        badge.innerText = "⚠️ ACTIVE LOAN (गाड़ी पर लोन चालू है)";
-                    } else {
-                        badge.className = "status-badge status-clean";
-                        badge.innerText = "✅ CLEAN (गाड़ी पर कोई लोन नहीं)";
-                    }
-
+                    displayVehicleInfo(data);
                     resultBox.style.display = "block";
                 } else {
                     showError("कोई डेटा नहीं मिला। कृपया गाड़ी नंबर सत्यापित करें।");
@@ -150,17 +410,72 @@
 
             } catch (error) {
                 console.error("Error:", error);
-                showError("डेटा लोड करने में समस्या आई। कृपया बाद में पुनः प्रयास करें।");
+                
+                // विस्तृत error message दिखाएँ
+                let userMessage = "डेटा लोड करने में समस्या आई।";
+                let details = "";
+                
+                if (error.message.includes('timeout')) {
+                    userMessage = "अनुरोध में समय लग गया।";
+                    details = "कृपया इंटरनेट कनेक्शन जांचें और फिर से प्रयास करें।";
+                } else if (error.message.includes('Failed to fetch')) {
+                    userMessage = "नेटवर्क में समस्या।";
+                    details = "कृपया इंटरनेट कनेक्शन जांचें।";
+                } else {
+                    details = error.message;
+                }
+                
+                showError(userMessage, details);
             } finally {
+                // बटन को फिर से सक्षम करें
                 btn.disabled = false;
-                btn.innerText = "🔍 चेक करें";
+                btn.innerHTML = '🔍 चेक करें';
             }
         }
 
-        function showError(message) {
+        // गाड़ी की जानकारी को display करने का फंक्शन
+        function displayVehicleInfo(data) {
+            // गाड़ी नंबर को फॉर्मेट करें
+            const vehicleNo = (data.vehicle_no || '').replace(/(.{2})(.{2})(.{2})(.{4,6})/, '$1-$2-$3-$4');
+            
+            // जानकारी भरें
+            document.getElementById('resNo').innerText = vehicleNo || "--";
+            document.getElementById('resBank').innerText = formatText(data.finance_company) || "जानकारी उपलब्ध नहीं";
+            document.getElementById('resClass').innerText = formatText(data.vehicle_class) || "जानकारी उपलब्ध नहीं";
+            document.getElementById('resOwner').innerText = maskOwnerName(data.owner_name) || "जानकारी उपलब्ध नहीं";
+
+            // स्टेटस बैज अपडेट करें
+            const badge = document.getElementById('badge');
+            if (data.loan_active || data.finance_company) {
+                badge.className = "status-badge status-active";
+                badge.innerText = "⚠️ सक्रिय लोन (Active Loan)";
+            } else {
+                badge.className = "status-badge status-clean";
+                badge.innerText = "✅ स्वच्छ (Clean)";
+            }
+        }
+
+        // टेक्स्ट को सही फॉर्मेट में करें
+        function formatText(text) {
+            if (!text) return '';
+            return text.trim().charAt(0).toUpperCase() + text.trim().slice(1).toLowerCase();
+        }
+
+        // मालिक का नाम छुपाएँ (privacy के लिए)
+        function maskOwnerName(name) {
+            if (!name || name.length < 3) return name;
+            // सिर्फ पहला अक्षर दिखाएँ, बाकी को hide करें
+            return name.charAt(0) + '*'.repeat(name.length - 2) + name.charAt(name.length - 1);
+        }
+
+        // Error को दिखाने का फंक्शन
+        function showError(message, details = "") {
             const errorBox = document.getElementById('errorBox');
             const errorMsg = document.getElementById('errorMsg');
+            const errorDetails = document.getElementById('errorDetails');
+            
             errorMsg.innerText = message;
+            errorDetails.innerText = details;
             errorBox.style.display = "block";
         }
     </script>
