@@ -5,7 +5,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// RapidAPI Keys Logic
 const getApiKeys = () => {
     const keysEnv = process.env.RAPIDAPI_KEYS || "";
     return keysEnv.split(',').map(k => k.trim()).filter(k => k.length > 0);
@@ -20,101 +19,10 @@ function getNextKey(keys) {
     return key;
 }
 
-// HTML UI Page
-const htmlPage = '<!DOCTYPE html>' +
-'<html lang="en">' +
-'<head>' +
-'    <meta charset="UTF-8">' +
-'    <meta name="viewport" content="width=device-width, initial-scale=1.0">' +
-'    <title>RTO Vehicle Information Portal</title>' +
-'    <meta name="google-adsense-account" content="ca-pub-6561716383231322">' +
-'    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6561716383231322" crossorigin="anonymous"></script>' +
-'    <style>' +
-'        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }' +
-'        body { background: #0a0a16; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px 10px; }' +
-'        .container { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px 20px; width: 100%; max-width: 420px; text-align: center; margin-top: 20px; }' +
-'        .logo { font-size: 40px; margin-bottom: 10px; }' +
-'        .badge { background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); display: inline-block; margin-bottom: 15px; }' +
-'        h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }' +
-'        p.subtitle { font-size: 12px; color: #a0a0ab; margin-bottom: 25px; }' +
-'        input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(0, 0, 0, 0.3); color: #fff; font-size: 16px; text-transform: uppercase; text-align: center; outline: none; margin-bottom: 15px; }' +
-'        button { width: 100%; padding: 15px; border-radius: 12px; border: none; background: linear-gradient(135deg, #00c6ff, #0072ff); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }' +
-'        #result { margin-top: 20px; text-align: left; }' +
-'        .error-box { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 15px; border-radius: 12px; text-align: center; font-size: 13px; }' +
-'        .info-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; margin-top: 10px; }' +
-'        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }' +
-'        .info-label { color: #8f8f9d; }' +
-'        .info-val { color: #fff; font-weight: 600; text-align: right; }' +
-'        footer { margin-top: 30px; font-size: 12px; color: #6b6b7b; text-align: center; }' +
-'        footer a { color: #00c6ff; text-decoration: none; margin: 0 8px; }' +
-'    </style>' +
-'</head>' +
-'<body>' +
-'    <div class="container">' +
-'        <div class="logo">🏛️</div>' +
-'        <div class="badge">🛡️ RTO Live Verifier</div>' +
-'        <h1>Vehicle Status</h1>' +
-'        <p class="subtitle">Check Bank Finance, Monthly EMI & NOC</p>' +
-'        <form id="vehicleForm">' +
-'            <input type="text" id="vehicleNo" placeholder="ENTER REGISTRATION NO" required>' +
-'            <button type="submit" id="submitBtn">⚡ Fetch Vehicle Info</button>' +
-'        </form>' +
-'        <div id="result"></div>' +
-'    </div>' +
-'    <footer>' +
-'        <p>© 2026 RTO Info Portal | All Rights Reserved</p>' +
-'        <p style="margin-top: 8px;">' +
-'            <a href="/privacy-policy">Privacy Policy</a> | ' +
-'            <a href="/terms">Terms of Service</a> | ' +
-'            <a href="/contact">Contact Us</a>' +
-'        </p>' +
-'    </footer>' +
-'    <script>' +
-'        document.getElementById("vehicleForm").addEventListener("submit", async function(e) {' +
-'            e.preventDefault();' +
-'            var vehicleNo = document.getElementById("vehicleNo").value.trim();' +
-'            var resultDiv = document.getElementById("result");' +
-'            var submitBtn = document.getElementById("submitBtn");' +
-'            if (!vehicleNo) return;' +
-'            submitBtn.innerText = "Searching...";' +
-'            submitBtn.disabled = true;' +
-'            resultDiv.innerHTML = "";' +
-'            try {' +
-'                var res = await fetch("/fetch-vehicle", {' +
-'                    method: "POST",' +
-'                    headers: { "Content-Type": "application/json" },' +
-'                    body: JSON.stringify({ vehicleNo: vehicleNo })' +
-'                });' +
-'                var data = await res.json();' +
-'                if (res.status !== 200) {' +
-'                    resultDiv.innerHTML = "<div class=\'error-box\'>" + (data.message || "Error fetching details.") + "</div>";' +
-'                } else {' +
-'                    var info = data.data || {};' +
-'                    resultDiv.innerHTML = "<div class=\'info-card\'>" +' +
-'                        "<div class=\'info-row\'><span class=\'info-label\'>Reg No:</span><span class=\'info-val\'>" + (info.registration_number || vehicleNo) + "</span></div>" +' +
-'                        "<div class=\'info-row\'><span class=\'info-label\'>Owner Name:</span><span class=\'info-val\'>" + (info.owner_name || "N/A") + "</span></div>" +' +
-'                        "<div class=\'info-row\'><span class=\'info-label\'>Maker / Model:</span><span class=\'info-val\'>" + (info.maker_model || "N/A") + "</span></div>" +' +
-'                        "<div class=\'info-row\'><span class=\'info-label\'>Financed / Bank:</span><span class=\'info-val\'>" + (info.financer || "No Finance / Clear") + "</span></div>" +' +
-'                        "<div class=\'info-row\'><span class=\'info-label\'>Insurance Upto:</span><span class=\'info-val\'>" + (info.insurance_upto || "N/A") + "</span></div>" +' +
-'                    "</div>";' +
-'                }' +
-'            } catch (err) {' +
-'                resultDiv.innerHTML = "<div class=\'error-box\'>Server error. Please try again.</div>";' +
-'            } finally {' +
-'                submitBtn.innerText = "⚡ Fetch Vehicle Info";' +
-'                submitBtn.disabled = false;' +
-'            }' +
-'        });' +
-'    </script>' +
-'</body>' +
-'</html>';
-
-// Home Route
 app.get('/', (req, res) => {
-    res.send(htmlPage);
+    res.send('<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RTO Vehicle Information Portal</title><meta name="google-adsense-account" content="ca-pub-6561716383231322"><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6561716383231322" crossorigin="anonymous"></script><style>*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif;}body{background:#0a0a16;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:20px 10px;}.container{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:30px 20px;width:100%;max-width:420px;text-align:center;margin-top:20px;}.logo{font-size:40px;margin-bottom:10px;}.badge{background:rgba(16,185,129,0.15);color:#10b981;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;border:1px solid rgba(16,185,129,0.3);display:inline-block;margin-bottom:15px;}h1{font-size:24px;font-weight:700;margin-bottom:6px;}p.subtitle{font-size:12px;color:#a0a0ab;margin-bottom:25px;}input{width:100%;padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(0,0,0,0.3);color:#fff;font-size:16px;text-transform:uppercase;text-align:center;outline:none;margin-bottom:15px;}button{width:100%;padding:15px;border-radius:12px;border:none;background:linear-gradient(135deg,#00c6ff,#0072ff);color:#fff;font-size:16px;font-weight:700;cursor:pointer;}#result{margin-top:20px;text-align:left;}.error-box{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;padding:15px;border-radius:12px;text-align:center;font-size:13px;}.info-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:15px;margin-top:10px;}.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;}.info-label{color:#8f8f9d;}.info-val{color:#fff;font-weight:600;text-align:right;}footer{margin-top:30px;font-size:12px;color:#6b6b7b;text-align:center;}footer a{color:#00c6ff;text-decoration:none;margin:0 8px;}</style></head><body><div class="container"><div class="logo">🏛️</div><div class="badge">🛡️ RTO Live Verifier</div><h1>Vehicle Status</h1><p class="subtitle">Check Bank Finance, Monthly EMI & NOC</p><form id="vehicleForm"><input type="text" id="vehicleNo" placeholder="ENTER REGISTRATION NO" required><button type="submit" id="submitBtn">⚡ Fetch Vehicle Info</button></form><div id="result"></div></div><footer><p>© 2026 RTO Info Portal | All Rights Reserved</p><p style="margin-top:8px;"><a href="/privacy-policy">Privacy Policy</a> | <a href="/terms">Terms of Service</a> | <a href="/contact">Contact Us</a></p></footer><script>document.getElementById("vehicleForm").addEventListener("submit",async function(e){e.preventDefault();var v=document.getElementById("vehicleNo").value.trim();var r=document.getElementById("result");var b=document.getElementById("submitBtn");if(!v)return;b.innerText="Searching...";b.disabled=true;r.innerHTML="";try{var res=await fetch("/fetch-vehicle",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({vehicleNo:v})});var d=await res.json();if(res.status!==200){r.innerHTML="<div class=\'error-box\'>"+(d.message||"Error fetching details.")+"</div>";}else{var i=d.data||{};r.innerHTML="<div class=\'info-card\'><div class=\'info-row\'><span class=\'info-label\'>Reg No:</span><span class=\'info-val\'>"+(i.registration_number||v)+"</span></div><div class=\'info-row\'><span class=\'info-label\'>Owner Name:</span><span class=\'info-val\'>"+(i.owner_name||"N/A")+"</span></div><div class=\'info-row\'><span class=\'info-label\'>Maker / Model:</span><span class=\'info-val\'>"+(i.maker_model||"N/A")+"</span></div><div class=\'info-row\'><span class=\'info-label\'>Financed / Bank:</span><span class=\'info-val\'>"+(i.financer||"No Finance / Clear")+"</span></div><div class=\'info-row\'><span class=\'info-label\'>Insurance Upto:</span><span class=\'info-val\'>"+(i.insurance_upto||"N/A")+"</span></div></div>";}}catch(err){r.innerHTML="<div class=\'error-box\'>Server error. Please try again.</div>";}finally{b.innerText="⚡ Fetch Vehicle Info";b.disabled=false;}});</script></body></html>');
 });
 
-// Legal Pages for AdSense Approval
 app.get('/privacy-policy', (req, res) => {
     res.send("<h1>Privacy Policy</h1><p>We respect your privacy. This portal provides public vehicle registration details using third-party APIs and displays Google AdSense advertisements.</p><br><a href='/'>Back to Home</a>");
 });
@@ -127,7 +35,6 @@ app.get('/contact', (req, res) => {
     res.send("<h1>Contact Us</h1><p>For support or feedback, please contact: malekyunus44@gmail.com</p><br><a href='/'>Back to Home</a>");
 });
 
-// Fetch API Route
 app.post('/fetch-vehicle', async (req, res) => {
     const { vehicleNo } = req.body;
     const keys = getApiKeys();
