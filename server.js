@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
 const app = express();
 
 app.use(express.json());
@@ -8,10 +9,11 @@ app.use(express.urlencoded({ extended: true }));
 // In-memory cache to save API requests and cost
 const vehicleCache = new Map();
 
-// Direct API configuration with your new key
+// Your API Key and correct endpoint configuration
 const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
+const API_HOST = 'rto-vehicle-information-verification-india.p.rapidapi.com';
+const API_URL = 'https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc';
 
-// Your original beautiful UI design with Google Ads integration
 const htmlPage = `
 <!DOCTYPE html>
 <html lang="en">
@@ -19,7 +21,6 @@ const htmlPage = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Status - Check Bank Finance & EMI</title>
-
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #fff; flex-direction: column; }
         .card { background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 420px; text-align: center; border: 1px solid #334155; margin-bottom: 20px; }
@@ -86,7 +87,7 @@ app.get('/', (req, res) => {
     res.send(htmlPage);
 });
 
-// Fetch API Route with Memory Caching and New Key
+// Fetch API Route with Caching and Correct URL/Key
 app.post('/fetch-vehicle', async (req, res) => {
     try {
         const { vehicleNo } = req.body;
@@ -96,7 +97,7 @@ app.post('/fetch-vehicle', async (req, res) => {
 
         const cleanNo = vehicleNo.toUpperCase().trim();
 
-        // 1. Check if result is already in cache (0 API cost!)
+        // 1. Check in-memory cache first (0 cost)
         if (vehicleCache.has(cleanNo)) {
             console.log(`Serving from Cache for: ${cleanNo}`);
             return res.json({ source: 'cache', data: vehicleCache.get(cleanNo) });
@@ -104,24 +105,24 @@ app.post('/fetch-vehicle', async (req, res) => {
 
         const options = {
             method: 'GET',
-            url: 'https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc',
+            url: API_URL,
             params: { vehicle_no: cleanNo },
             headers: {
                 'X-RapidAPI-Key': API_KEY,
-                'X-RapidAPI-Host': 'rto-vehicle-information-verification-india.p.rapidapi.com'
+                'X-RapidAPI-Host': API_HOST
             }
         };
 
         const response = await axios.request(options);
         
-        // 2. Save successful result to cache
+        // 2. Save result to cache
         vehicleCache.set(cleanNo, response.data);
 
         return res.json({ source: 'api', data: response.data });
 
     } catch (error) {
         console.error(error.response?.data || error.message);
-        return res.status(500).json({ error: error.response?.data?.message || 'Failed to fetch vehicle details.' });
+        return res.status(500).json({ error: error.response?.data?.message || 'Monthly free quota exhausted for current API Key.' });
     }
 });
 
@@ -129,3 +130,12 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// Keep server awake automatically every 10 minutes
+setInterval(() => {
+    https.get('https://check-vehicle-loan.onrender.com', (res) => {
+        console.log(`Keep-alive ping status: ${res.statusCode}`);
+    }).on('error', (err) => {
+        console.error(`Keep-alive ping error: ${err.message}`);
+    });
+}, 10 * 60 * 1000);
