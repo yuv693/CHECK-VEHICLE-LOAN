@@ -11,7 +11,7 @@ const vehicleCache = new Map();
 const requestTracker = new Map();
 
 // Your API Key and correct endpoint configuration
-const API_KEY = '585ac7aa73msh97474a983a488d1p1fb0cdjsnc0e1c4f75737';
+const API_KEY = 'c8ff7efe43mshb615431c4a240fep1cca5ajsnd07a531f7ac1';
 const API_HOST = 'rto-vehicle-information-verification-india.p.rapidapi.com';
 const API_URL = 'https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc';
 
