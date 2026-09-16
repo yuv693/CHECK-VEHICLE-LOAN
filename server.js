@@ -1,5 +1,5 @@
 const express = require('express');
-const axios = require('axios');
+const https = require('https');
 const app = express();
 
 app.use(express.json());
@@ -15,6 +15,51 @@ function getNextKey() {
     const key = apiKeys[currentKeyIndex];
     currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
     return key;
+}
+
+// Native HTTPS helper function
+function makeApiRequest(apiKey, vehicleNumber) {
+    return new Promise((resolve, reject) => {
+        const postData = JSON.stringify({ vehicleNumber });
+
+        const options = {
+            hostname: 'rto-vehicle-information-india.p.rapidapi.com',
+            path: '/getVehicleInfo',
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json',
+                'x-rapidapi-host': 'rto-vehicle-information-india.p.rapidapi.com',
+                'x-rapidapi-key': apiKey,
+                'Content-Length': Buffer.byteLength(postData)
+            },
+            timeout: 10000
+        };
+
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => { data += chunk; });
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try {
+                        resolve(JSON.parse(data));
+                    } catch (e) {
+                        reject(new Error('Invalid JSON response'));
+                    }
+                } else {
+                    reject(new Error(`API Error Status: ${res.statusCode} - ${data}`));
+                }
+            });
+        });
+
+        req.on('error', (e) => reject(e));
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timed out'));
+        });
+
+        req.write(postData);
+        req.end();
+    });
 }
 
 app.post('/api/vehicle-info', async (req, res) => {
@@ -37,29 +82,17 @@ app.post('/api/vehicle-info', async (req, res) => {
         attempts++;
 
         try {
-            const response = await axios.post(
-                'https://rto-vehicle-information-india.p.rapidapi.com/getVehicleInfo',
-                { vehicleNumber },
-                {
-                    headers: {
-                        'content-type': 'application/json',
-                        'x-rapidapi-host': 'rto-vehicle-information-india.p.rapidapi.com',
-                        'x-rapidapi-key': apiKey
-                    },
-                    timeout: 10000
-                }
-            );
-
-            return res.json(response.data);
+            const data = await makeApiRequest(apiKey, vehicleNumber);
+            return res.json(data);
         } catch (error) {
-            console.error(`Key attempt ${attempts} failed:`, error.response?.data || error.message);
+            console.error(`Key attempt ${attempts} failed:`, error.message);
             lastError = error;
         }
     }
 
     res.status(500).json({
         error: 'Unable to fetch vehicle details at the moment. All API keys exhausted or busy.',
-        details: lastError?.response?.data || lastError?.message
+        details: lastError?.message || 'Unknown error'
     });
 });
 
