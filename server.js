@@ -1,12 +1,8 @@
 const express = require('express');
 const https = require('https');
-const path = require('path');
 const app = express();
 
 app.use(express.json());
-
-// Serve static assets from public folder
-app.use(express.static(path.join(__dirname, 'public')));
 
 const keysEnv = process.env.RAPIDAPI_KEYS || '';
 const apiKeys = keysEnv.split(',').map(k => k.trim()).filter(Boolean);
@@ -64,9 +60,88 @@ function makeApiRequest(apiKey, vehicleNumber) {
     });
 }
 
-// Serve your original frontend index.html
+// Complete Dark UI Embedded directly
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>RTO Information Portal</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+            body { background: linear-gradient(135deg, #0f0c20 0%, #15102a 50%, #060212 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; color: #fff; }
+            .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px 24px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+            .icon-box { font-size: 40px; margin-bottom: 10px; color: #38ef7d; }
+            .badge { display: inline-block; background: rgba(56, 239, 125, 0.15); color: #38ef7d; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(56, 239, 125, 0.3); }
+            h2 { font-size: 26px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; }
+            p.sub { color: #8a8d9b; font-size: 13px; margin-bottom: 25px; }
+            input { width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 14px; color: #fff; font-size: 16px; font-weight: 600; text-transform: uppercase; text-align: center; margin-bottom: 16px; outline: none; transition: 0.3s; }
+            input:focus { border-color: #11998e; box-shadow: 0 0 10px rgba(17, 153, 142, 0.3); }
+            button { width: 100%; background: linear-gradient(90deg, #11998e, #38ef7d); border: none; border-radius: 12px; padding: 14px; color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(56, 239, 125, 0.25); }
+            button:active { transform: scale(0.98); }
+            .result-area { margin-top: 20px; text-align: left; background: rgba(0,0,0,0.4); border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.08); display: none; max-height: 250px; overflow-y: auto; }
+            .info-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; font-size: 13px; }
+            .info-row:last-child { border-bottom: none; }
+            .key { color: #8a8d9b; font-weight: 500; }
+            .val { color: #fff; font-weight: 600; }
+            .error-box { background: rgba(255, 75, 75, 0.15); color: #ff6b6b; padding: 12px; border-radius: 8px; font-size: 13px; border: 1px solid rgba(255, 75, 75, 0.3); text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="icon-box">🏛️</div>
+            <div class="badge">🛡️ RTO Live Verifier</div>
+            <h2>Vehicle Status</h2>
+            <p class="sub">Check Bank Finance, Monthly EMI & NOC</p>
+
+            <input type="text" id="vehicleNumber" placeholder="ENTER REGISTRATION NO">
+            <button onclick="checkVehicle()">⚡ Fetch Vehicle Info</button>
+
+            <div id="result" class="result-area"></div>
+        </div>
+
+        <script>
+            async function checkVehicle() {
+                const vehicleNumber = document.getElementById('vehicleNumber').value.trim();
+                const resultDiv = document.getElementById('result');
+                if(!vehicleNumber) { alert('Please enter registration number'); return; }
+
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '<p style="text-align:center; color:#8a8d9b;">Fetching info...</p>';
+
+                try {
+                    const res = await fetch('/api/vehicle-info', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ vehicleNumber })
+                    });
+                    const data = await res.json();
+
+                    if(data.error || data.status === false) {
+                        resultDiv.innerHTML = \`<div class="error-box">\${data.error || data.message || 'Vehicle details not found.'}</div>\`;
+                        return;
+                    }
+
+                    let html = '';
+                    const details = data.result || data;
+                    for (const [key, value] of Object.entries(details)) {
+                        if (typeof value !== 'object' && value) {
+                            const formattedKey = key.replace(/_/g, ' ').toUpperCase();
+                            html += \`<div class="info-row"><span class="key">\${formattedKey}</span><span class="val">\${value}</span></div>\`;
+                        }
+                    }
+                    resultDiv.innerHTML = html || '<div class="error-box">No data found</div>';
+
+                } catch(e) {
+                    resultDiv.innerHTML = '<div class="error-box">Error connecting to server.</div>';
+                }
+            }
+        </script>
+    </body>
+    </html>
+    `);
 });
 
 // API Endpoint
@@ -99,7 +174,7 @@ app.post('/api/vehicle-info', async (req, res) => {
     }
 
     res.status(500).json({
-        error: 'Unable to fetch vehicle details at the moment. All API keys exhausted or busy.',
+        error: 'Monthly free quota exhausted for current API Key. Please add fresh keys in Render.',
         details: lastError?.message || 'Unknown error'
     });
 });
