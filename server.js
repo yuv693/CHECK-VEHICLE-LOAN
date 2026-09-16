@@ -1,8 +1,12 @@
 const express = require('express');
 const https = require('https');
+const path = require('path');
 const app = express();
 
 app.use(express.json());
+
+// Serve static assets from public folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 const keysEnv = process.env.RAPIDAPI_KEYS || '';
 const apiKeys = keysEnv.split(',').map(k => k.trim()).filter(Boolean);
@@ -60,58 +64,9 @@ function makeApiRequest(apiKey, vehicleNumber) {
     });
 }
 
-// Inline HTML Frontend (Prevents Not Found errors)
+// Serve your original frontend index.html
 app.get('/', (req, res) => {
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>RTO Vehicle Information Check</title>
-        <style>
-            body { font-family: Arial, sans-serif; background: #f4f7f6; padding: 20px; display: flex; justify-content: center; }
-            .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
-            h2 { text-align: center; color: #333; margin-bottom: 20px; }
-            input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; text-transform: uppercase; }
-            button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
-            button:hover { background: #0056b3; }
-            #result { margin-top: 20px; background: #eef2f5; padding: 15px; border-radius: 6px; font-size: 14px; word-wrap: break-word; white-space: pre-wrap; }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h2>RTO Vehicle Info</h2>
-            <input type="text" id="vehicleNumber" placeholder="Enter Vehicle No (e.g. GJ03XX1234)">
-            <button onclick="checkVehicle()">Search Details</button>
-            <div id="result" style="display:none;"></div>
-        </div>
-
-        <script>
-            async function checkVehicle() {
-                const vehicleNumber = document.getElementById('vehicleNumber').value.trim();
-                const resultDiv = document.getElementById('result');
-                if(!vehicleNumber) { alert('Please enter a vehicle number'); return; }
-                
-                resultDiv.style.display = 'block';
-                resultDiv.innerHTML = 'Fetching details...';
-
-                try {
-                    const res = await fetch('/api/vehicle-info', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ vehicleNumber })
-                    });
-                    const data = await res.json();
-                    resultDiv.innerHTML = JSON.stringify(data, null, 2);
-                } catch(e) {
-                    resultDiv.innerHTML = 'Error fetching details. Please try again.';
-                }
-            }
-        </script>
-    </body>
-    </html>
-    `);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // API Endpoint
