@@ -1,5 +1,6 @@
 const express = require('express');
 const https = require('https');
+const path = require('path');
 const app = express();
 
 app.use(express.json());
@@ -17,7 +18,6 @@ function getNextKey() {
     return key;
 }
 
-// Native HTTPS helper function
 function makeApiRequest(apiKey, vehicleNumber) {
     return new Promise((resolve, reject) => {
         const postData = JSON.stringify({ vehicleNumber });
@@ -62,6 +62,12 @@ function makeApiRequest(apiKey, vehicleNumber) {
     });
 }
 
+// Route to serve HTML frontend
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API Endpoint
 app.post('/api/vehicle-info', async (req, res) => {
     const { vehicleNumber } = req.body;
 
