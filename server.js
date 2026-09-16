@@ -6,8 +6,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory cache to save API requests and cost
+// In-memory cache & Rate Limiting tracking
 const vehicleCache = new Map();
+const requestTracker = new Map();
 
 // Your API Key and correct endpoint configuration
 const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
@@ -20,7 +21,13 @@ const htmlPage = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Status - Check Bank Finance & EMI</title>
+    
+    <!-- SEO Meta Tags for Google Search Visibility -->
+    <title>RTO Vehicle Information & Bank Finance Status Check</title>
+    <meta name="description" content="Check Indian vehicle RTO details, owner name, monthly EMI, and bank finance status online instantly for free.">
+    <meta name="keywords" content="RTO vehicle info, vehicle RC status, check car finance, bike loan status, vehicle owner details India">
+    <meta name="robots" content="index, follow">
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #fff; flex-direction: column; }
         .card { background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 420px; text-align: center; border: 1px solid #334155; margin-bottom: 20px; }
@@ -87,7 +94,7 @@ app.get('/', (req, res) => {
     res.send(htmlPage);
 });
 
-// Fetch API Route with Caching and Correct URL/Key
+// Fetch API Route with Caching, Rate Limiting & Correct URL
 app.post('/fetch-vehicle', async (req, res) => {
     try {
         const { vehicleNo } = req.body;
@@ -96,6 +103,17 @@ app.post('/fetch-vehicle', async (req, res) => {
         }
 
         const cleanNo = vehicleNo.toUpperCase().trim();
+        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+        // Rate Limiting: Check if user made a request in the last 15 seconds
+        const currentTime = Date.now();
+        if (requestTracker.has(clientIp)) {
+            const lastTime = requestTracker.get(clientIp);
+            if (currentTime - lastTime < 15000) { // 15 seconds cooldown
+                return res.status(429).json({ error: 'Please wait 15 seconds before searching another vehicle to prevent limit exhaustion.' });
+            }
+        }
+        requestTracker.set(clientIp, currentTime);
 
         // 1. Check in-memory cache first (0 cost)
         if (vehicleCache.has(cleanNo)) {
