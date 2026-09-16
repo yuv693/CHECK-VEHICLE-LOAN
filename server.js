@@ -20,18 +20,18 @@ function getNextKey(keys) {
     return key;
 }
 
-// Complete Full HTML UI + AdSense Integration
-const getHTMLContent = () => {
-    return `<!DOCTYPE html>
+// Route for Home Page
+app.get('/', (req, res) => {
+    res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RTO Vehicle Information Portal</title>
     
-    <!-- Google AdSense Script -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6561716383231322"
-     crossorigin="anonymous"></script>
+    <!-- Google AdSense Meta Tag & Script -->
+    <meta name="google-adsense-account" content="ca-pub-6561716383231322">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6561716383231322" crossorigin="anonymous"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -55,7 +55,6 @@ const getHTMLContent = () => {
         footer { margin-top: 30px; font-size: 12px; color: #6b6b7b; text-align: center; }
         footer a { color: #00c6ff; text-decoration: none; margin: 0 8px; }
         footer a:hover { text-decoration: underline; }
-        .ad-container { margin: 15px 0; width: 100%; text-align: center; }
     </style>
 </head>
 <body>
@@ -70,17 +69,6 @@ const getHTMLContent = () => {
             <input type="text" id="vehicleNo" placeholder="ENTER REGISTRATION NO" required>
             <button type="submit" id="submitBtn">⚡ Fetch Vehicle Info</button>
         </form>
-
-        <!-- In-Page Ad Banner Area -->
-        <div class="ad-container">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-6561716383231322"
-                 data-ad-slot="auto"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
 
         <div id="result"></div>
     </div>
@@ -117,7 +105,7 @@ const getHTMLContent = () => {
                 const data = await res.json();
 
                 if (res.status !== 200) {
-                    resultDiv.innerHTML = \`<div class="error-box">\${data.message || 'Error fetching vehicle details.'}</div>\`;
+                    resultDiv.innerHTML = '<div class="error-box">' + (data.message || 'Error fetching details.') + '</div>';
                 } else {
                     const info = data.data || {};
                     resultDiv.innerHTML = \`
@@ -131,7 +119,7 @@ const getHTMLContent = () => {
                     \`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = \`<div class="error-box">Server error. Please try again.</div>\`;
+                resultDiv.innerHTML = '<div class="error-box">Server error. Please try again.</div>';
             } finally {
                 submitBtn.innerText = '⚡ Fetch Vehicle Info';
                 submitBtn.disabled = false;
@@ -139,15 +127,10 @@ const getHTMLContent = () => {
         });
     </script>
 </body>
-</html>`;
-};
-
-// Routes
-app.get('/', (req, res) => {
-    res.send(getHTMLContent());
+</html>`);
 });
 
-// AdSense Approval Legal Pages
+// Legal Pages
 app.get('/privacy-policy', (req, res) => {
     res.send("<h1>Privacy Policy</h1><p>We respect your privacy. This portal provides public vehicle registration details using third-party APIs and displays Google AdSense advertisements.</p><a href='/'>Back to Home</a>");
 });
@@ -171,12 +154,11 @@ app.post('/fetch-vehicle', async (req, res) => {
 
     let attempts = 0;
     let success = false;
-    let lastError = "";
 
     while (attempts < keys.length && !success) {
         const apiKey = getNextKey(keys);
         try {
-            const response = await axios.get(`https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc/vehicleinfo`, {
+            const response = await axios.get('https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc/vehicleinfo', {
                 headers: {
                     'x-rapidapi-key': apiKey,
                     'x-rapidapi-host': 'rto-vehicle-information-verification-india.p.rapidapi.com',
@@ -190,7 +172,6 @@ app.post('/fetch-vehicle', async (req, res) => {
                 return res.status(200).json({ data: response.data });
             }
         } catch (error) {
-            lastError = error.response?.data?.message || error.message;
             attempts++;
         }
     }
