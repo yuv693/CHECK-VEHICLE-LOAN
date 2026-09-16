@@ -1,39 +1,69 @@
 const express = require('express');
-const fetch = require('node-fetch');
-const path = require('path');
-
+const axios = require('axios');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, './')));
+app.use(express.static('public'));
 
-app.post('/api/check-vehicle', async (req, res) => {
-  try {
-    const { vehicle_no } = req.body;
-    
-    const response = await fetch("https://rto-vehicle-information-india.p.rapidapi.com/getVehicleChallan", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-rapidapi-host": "rto-vehicle-information-india.p.rapidapi.com",
-        "x-rapidapi-key": "9e90b931e9mshbfd1742e256fe30p1e9cdajsn13d954df9c97"
+const keysEnv = process.env.RAPIDAPI_KEYS || '';
+const apiKeys = keysEnv.split(',').map(k => k.trim()).filter(Boolean);
 
-      },
-      body: JSON.stringify({
-        vehicle_no: vehicle_no,
-        consent: "Y",
-        consent_text: "I hereby give my consent"
-      })
+let currentKeyIndex = 0;
+
+function getNextKey() {
+    if (apiKeys.length === 0) return null;
+    const key = apiKeys[currentKeyIndex];
+    currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+    return key;
+}
+
+app.post('/api/vehicle-info', async (req, res) => {
+    const { vehicleNumber } = req.body;
+
+    if (!vehicleNumber) {
+        return res.status(400).json({ error: 'Vehicle number is required' });
+    }
+
+    if (apiKeys.length === 0) {
+        return res.status(500).json({ error: 'No RapidAPI keys configured on server.' });
+    }
+
+    let attempts = 0;
+    let success = false;
+    let lastError = null;
+
+    while (attempts < apiKeys.length && !success) {
+        const apiKey = getNextKey();
+        attempts++;
+
+        try {
+            const response = await axios.post(
+                'https://rto-vehicle-information-india.p.rapidapi.com/getVehicleInfo',
+                { vehicleNumber },
+                {
+                    headers: {
+                        'content-type': 'application/json',
+                        'x-rapidapi-host': 'rto-vehicle-information-india.p.rapidapi.com',
+                        'x-rapidapi-key': apiKey
+                    },
+                    timeout: 10000
+                }
+            );
+
+            return res.json(response.data);
+        } catch (error) {
+            console.error(`Key attempt ${attempts} failed:`, error.response?.data || error.message);
+            lastError = error;
+        }
+    }
+
+    res.status(500).json({
+        error: 'Unable to fetch vehicle details at the moment. All API keys exhausted or busy.',
+        details: lastError?.response?.data || lastError?.message
     });
-
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
