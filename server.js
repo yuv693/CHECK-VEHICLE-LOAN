@@ -8,19 +8,8 @@ app.use(express.urlencoded({ extended: true }));
 // In-memory cache to save API requests and cost
 const vehicleCache = new Map();
 
-// API Keys configuration
-const getApiKeys = () => {
-    const keysEnv = process.env.RAPIDAPI_KEYS || process.env.RAPIDAPI_KEY || '';
-    return keysEnv.split(',').map(k => k.trim()).filter(Boolean);
-};
-
-let currentKeyIndex = 0;
-function getNextKey(keys) {
-    if (keys.length === 0) return null;
-    const key = keys[currentKeyIndex];
-    currentKeyIndex = (currentKeyIndex + 1) % keys.length;
-    return key;
-}
+// Direct API configuration with your new key
+const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
 
 // Your original beautiful UI design with Google Ads integration
 const htmlPage = `
@@ -30,9 +19,6 @@ const htmlPage = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vehicle Status - Check Bank Finance & EMI</title>
-    
-    <!-- Google Adsense Script (Yahan aapka AdSense tag ya script hai) -->
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_CLIENT_ID" crossorigin="anonymous"></script> -->
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #fff; flex-direction: column; }
@@ -61,7 +47,6 @@ const htmlPage = `
 
     <!-- Google Ad Space Area -->
     <div class="ad-container">
-        <!-- Yahan aap apna Google Adsense ka <ins> tag laga sakte hain -->
         <p style="color: #64748b; font-size: 12px; margin: 5px;">Advertisement Space</p>
     </div>
 
@@ -85,7 +70,7 @@ const htmlPage = `
                     resultDiv.innerHTML = '<pre>' + JSON.stringify(data.data || data, null, 2) + '</pre>';
                 } else {
                     resultDiv.className = 'error-box';
-                    resultDiv.innerHTML = data.error || 'Monthly free quota exhausted for current API Key.';
+                    resultDiv.innerHTML = data.error || 'Something went wrong.';
                 }
             } catch (err) {
                 resultDiv.className = 'error-box';
@@ -101,7 +86,7 @@ app.get('/', (req, res) => {
     res.send(htmlPage);
 });
 
-// Fetch API Route with Memory Caching
+// Fetch API Route with Memory Caching and New Key
 app.post('/fetch-vehicle', async (req, res) => {
     try {
         const { vehicleNo } = req.body;
@@ -117,19 +102,12 @@ app.post('/fetch-vehicle', async (req, res) => {
             return res.json({ source: 'cache', data: vehicleCache.get(cleanNo) });
         }
 
-        const keys = getApiKeys();
-        if (keys.length === 0) {
-            return res.status(500).json({ error: 'No RapidAPI keys configured in environment variables.' });
-        }
-
-        const apiKey = getNextKey(keys);
-
         const options = {
             method: 'GET',
             url: 'https://rto-vehicle-information-verification-india.p.rapidapi.com/api/v1/rc',
             params: { vehicle_no: cleanNo },
             headers: {
-                'X-RapidAPI-Key': apiKey,
+                'X-RapidAPI-Key': API_KEY,
                 'X-RapidAPI-Host': 'rto-vehicle-information-verification-india.p.rapidapi.com'
             }
         };
@@ -143,7 +121,7 @@ app.post('/fetch-vehicle', async (req, res) => {
 
     } catch (error) {
         console.error(error.response?.data || error.message);
-        return res.status(500).json({ error: error.response?.data?.message || 'Monthly free quota exhausted for current API Key.' });
+        return res.status(500).json({ error: error.response?.data?.message || 'Failed to fetch vehicle details.' });
     }
 });
 
