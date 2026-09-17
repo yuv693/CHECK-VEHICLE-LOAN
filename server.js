@@ -13,7 +13,7 @@ const requestTracker = new Map();
 // Your API Key and correct endpoint configuration
 const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
 const API_HOST = 'abhiyanpa7.p.rapidapi.com';
-const const API_URL = 'https://abhiyanpa7.p.rapidapi.com/address';
+const API_URL = 'https://abhiyanpa7.p.rapidapi.com/address';
 const htmlPage = `
 <!DOCTYPE html>
 <html lang="en">
