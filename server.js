@@ -123,7 +123,7 @@ app.post('/fetch-vehicle', async (req, res) => {
         const options = {
             method: 'GET',
             url: API_URL,
-            params: { vehicle_no: cleanNo },
+            params: { registration: cleanNo },
             headers: {
                 'X-RapidAPI-Key': API_KEY,
                 'X-RapidAPI-Host': API_HOST
