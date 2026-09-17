@@ -11,7 +11,7 @@ const vehicleCache = new Map();
 const requestTracker = new Map();
 
 // Your API Key and correct endpoint configuration
-const API_KEY = 'c8ff7efe43mshb615431c4a240fep1cca5ajsnd07a531f7ac1';
+const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
 const API_HOST = 'abhiyanpa7.p.rapidapi.com';
 const API_URL = 'https://abhiyanpa7.p.rapidapi.com/api/rto-vehicle-details5/playground/Vehicle%20RC%20Address%20Lookup';
 
