@@ -28,8 +28,8 @@ const htmlPage = `
     <meta name="keywords" content="RTO vehicle info, vehicle RC status, check car finance, bike loan status, vehicle owner details">
     <meta name="robots" content="index, follow">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .card { background: #1e293b; padding: 30px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 420px; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; margin: 0; padding: 20px; color: #f8fafc; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .card { background: #1e293b; padding: 30px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 420px; box-sizing: border-box; margin-top: auto; margin-bottom: auto; }
         .badge { display: inline-block; background: rgba(14, 165, 233, 0.1); color: #38bdf8; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
         h2 { margin: 10px 0 5px 0; font-size: 24px; color: #f8fafc; }
         p.subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 25px; }
@@ -39,7 +39,8 @@ const htmlPage = `
         button:hover { opacity: 0.9; }
         #result { margin-top: 20px; text-align: left; font-size: 13px; background: #0f172a; padding: 15px; border-radius: 10px; border: 1px solid #334155; display: none; word-break: break-all; max-height: 300px; overflow-y: auto; }
         .error-box { background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); margin-top: 15px; font-size: 13px; }
-        .ad-container { width: 100%; max-width: 420px; background: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #334155; margin-top: 20px; text-align: center; box-sizing: border-box; }
+        footer { margin-top: 30px; text-align: center; color: #64748b; font-size: 11px; max-width: 420px; line-height: 1.5; }
+        footer p { margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -51,6 +52,11 @@ const htmlPage = `
         <button onclick="fetchVehicle()">Fetch Vehicle Info</button>
         <div id="result"></div>
     </div>
+
+    <footer>
+        <p><strong>Disclaimer:</strong> This website is an independent informational tool and is not affiliated with any official Government transport department.</p>
+        <p>We respect your privacy. Standard cookies and AdSense analytics are used to serve personalized ads and improve user experience.</p>
+    </footer>
 
     <script>
         async function fetchVehicle() {
