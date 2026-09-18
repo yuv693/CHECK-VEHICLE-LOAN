@@ -21,6 +21,8 @@ const htmlPage = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google AdSense Verification Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6561716383231322" crossorigin="anonymous"></script>
     <!-- SEO Meta Tags for Google Search Visibility -->
     <title>RTO Vehicle Information & Bank Finance Status Check</title>
     <meta name="keywords" content="RTO vehicle info, vehicle RC status, check car finance, bike loan status, vehicle owner details">
