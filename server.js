@@ -12,8 +12,8 @@ const requestTracker = new Map();
 
 // Your API Key and correct endpoint configuration
 const API_KEY = 'bab79548femsh66e05a7c56ab71bp1e6ac7jsn4a0dadaa39df';
-const API_HOST = 'rto-vehicle-information-india-api.p.rapidapi.com';
-const API_URL = 'https://rto-vehicle-information-india-api.p.rapidapi.com/api/rto-vehicle-information-india-api/Check%20Rc%20Details';
+const API_HOST = 'indian-rto-vehicle-details-mega.p.rapidapi.com';
+const API_URL = 'https://indian-rto-vehicle-details-mega.p.rapidapi.com/rc_v2.php';
 const htmlPage = `
 <!DOCTYPE html>
 <html lang="en">
