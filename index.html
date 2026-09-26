@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vehicle Loan & EMI Checker</title>
+  <title>Vehicle Loan & EMI Checker - RTO Status & NOC Verification</title>
+  <meta name="description" content="Check vehicle loan status, monthly EMI breakdown, bank finance details, and download NOC online instantly using our secure RTO vehicle information portal.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -18,7 +19,7 @@
       animation: gradientBG 12s ease infinite;
       min-height: 100vh;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       padding: 20px;
     }
@@ -26,6 +27,14 @@
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
+    }
+    .wrapper {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 40px;
     }
     .container {
       background: rgba(255, 255, 255, 0.07);
@@ -35,7 +44,6 @@
       border-radius: 24px;
       padding: 35px 28px;
       width: 100%;
-      max-width: 460px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
       color: #ffffff;
       text-align: center;
@@ -175,106 +183,152 @@
     }
     .badge-yes { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
     .badge-no { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+    /* SEO Content Section Styles */
+    .content-section {
+      width: 100%;
+      max-width: 600px;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 30px;
+      margin-top: 25px;
+      color: #cbd5e1;
+      text-align: left;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+    .content-section h2 {
+      font-size: 20px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+    .content-section h2:first-child {
+      margin-top: 0;
+    }
+    .content-section p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #94a3b8;
+    }
+    .content-section ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    .content-section li {
+      margin-bottom: 8px;
+    }
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 13px;
+      color: #64748b;
+    }
   </style>
 </head>
 <body>
 
-  <div class="container">
-<div style="text-align: center; margin-bottom: 15px;">
-  <i class="fa-solid fa-building-columns" style="font-size: 36px; color: #38bdf8;"></i>
-  <span style="display: block; font-size: 11px; color: #94a3b8; margin-top: 5px;">RTO Information Portal</span>
-</div>
-
-    <div class="brand-badge">
-      <i class="fa-solid fa-shield-halved"></i> RTO Live Verifier
-    </div>
-    
-    <h1>Vehicle Status</h1>
-    <p class="subtitle">Check Bank Finance, Monthly EMI & NOC</p>
-
-    <div class="input-box">
-      <i class="fa-solid fa-car-side"></i>
-      <input type="text" id="vehicleNo" placeholder="Enter Registration No.">
-    </div>
-
-    <button class="btn-primary" onclick="checkVehicle()">
-      <i class="fa-solid fa-bolt"></i> Fetch Vehicle Info
-    </button>
-
-    <div id="loader" class="loader">
-      <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live database info...
-    </div>
-
-    <div id="result" class="result-section">
-      <div class="info-card">
-        <div class="card-title">
-          <i class="fa-solid fa-building-columns"></i> Finance Details
-        </div>
-        <div class="data-row">
-          <span class="data-label">Loan Active</span>
-          <span id="loanActive" class="data-value">-</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Bank Name</span>
-          <span id="bankName" class="data-value">-</span>
-        </div>
+  <div class="wrapper">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 15px;">
+        <i class="fa-solid fa-building-columns" style="font-size: 36px; color: #38bdf8;"></i>
+        <span style="display: block; font-size: 11px; color: #94a3b8; margin-top: 5px;">RTO Information Portal</span>
       </div>
 
-      <div class="info-card">
-        <div class="card-title">
-          <i class="fa-solid fa-receipt"></i> EMI Breakdown
-        </div>
-        <div class="data-row">
-          <span class="data-label">Monthly EMI</span>
-          <span id="monthlyEmi" class="data-value">-</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Pending EMIs</span>
-          <span id="pendingEmi" class="data-value">-</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Overdue Amount</span>
-          <span id="overdueAmt" class="data-value" style="color: #f87171;">-</span>
-        </div>
+      <div class="brand-badge">
+        <i class="fa-solid fa-shield-halved"></i> RTO Live Verifier
+      </div>
+      
+      <h1>Vehicle Status</h1>
+      <p class="subtitle">Check Bank Finance, Monthly EMI & NOC</p>
+
+      <div class="input-box">
+        <i class="fa-solid fa-car-side"></i>
+        <input type="text" id="vehicleNo" placeholder="Enter Registration No.">
       </div>
 
-      <!-- NOC Download Button -->
-      <button id="downloadNocBtn" class="btn-success" onclick="downloadNOC()" style="display:none;">
-        <i class="fa-solid fa-file-arrow-down"></i> Download NOC Certificate
+      <button class="btn-primary" onclick="checkVehicle()">
+        <i class="fa-solid fa-bolt"></i> Fetch Vehicle Info
       </button>
+
+      <div id="loader" class="loader">
+        <i class="fa-solid fa-circle-notch fa-spin"></i> Fetching live database info...
+      </div>
+
+      <div id="result" class="result-section">
+        <div class="info-card">
+          <div class="card-title">
+            <i class="fa-solid fa-building-columns"></i> Finance Details
+          </div>
+          <div class="data-row">
+            <span class="data-label">Loan Status</span>
+            <span id="loanActive" class="data-value">-</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Bank Name</span>
+            <span id="bankName" class="data-value">-</span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="card-title">
+            <i class="fa-solid fa-receipt"></i> EMI & Dues Breakdown
+          </div>
+          <div class="data-row">
+            <span class="data-label">Monthly EMI</span>
+            <span id="monthlyEmi" class="data-value">-</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Pending EMIs</span>
+            <span id="pendingEmi" class="data-value">-</span>
+          </div>
+          <div class="data-row">
+            <span class="data-label">Overdue Amount</span>
+            <span id="overdueAmt" class="data-value" style="color: #f87171;">-</span>
+          </div>
+        </div>
+
+        <!-- NOC Download Button -->
+        <button id="downloadNocBtn" class="btn-success" onclick="downloadNOC()" style="display:none;">
+          <i class="fa-solid fa-file-arrow-down"></i> Download NOC Certificate
+        </button>
+      </div>
     </div>
+
+    <!-- SEO Information & Guidelines Section for AdSense Approval -->
+    <div class="content-section">
+      <h2>About Vehicle Loan & RTO Verification Portal</h2>
+      <p>Welcome to the ultimate digital platform designed to check vehicle registration status, active bank hypothecation, monthly EMI breakdown, and financial dues instantly. Whether you are planning to buy a second-hand vehicle or want to verify your own loan clearance status, our tool connects securely to provide reliable data insights.</p>
+
+      <h2>Why Check Vehicle Hypothecation & Loan Status?</h2>
+      <p>When purchasing a pre-owned car or bike, it is crucial to verify whether the vehicle is free from bank loans or legal dues. Hypothecation means the vehicle is pledged to a bank or financial institution as security for a loan. Driving or buying a vehicle with an active unpaid loan without proper clearance can lead to legal complications.</p>
+      <ul>
+        <li><strong>Ensure Ownership Clarity:</strong> Confirm if the previous owner has fully paid off the vehicle loan.</li>
+        <li><strong>No Dues Verification:</strong> Check if there are any pending overdue amounts or active monthly installments.</li>
+        <li><strong>NOC Availability:</strong> Easily verify and generate reference documents confirming cleared financial status.</li>
+      </ul>
+
+      <h2>Frequently Asked Questions (FAQs)</h2>
+      <p><strong>Q1: What is vehicle hypothecation?</strong><br>
+      Hypothecation indicates that the vehicle was bought using a car/bike loan and is legally registered under a bank's security until the loan is fully repaid.</p>
+
+      <p><strong>Q2: How can I remove hypothecation from my RC?</strong><br>
+      Once you clear your loan, the bank issues a No Objection Certificate (NOC). You can submit this NOC along with form 35 to your local Regional Transport Office (RTO) to get the bank's name removed from your Registration Certificate.</p>
+
+      <p><strong>Q3: Is this vehicle status check official?</strong><br>
+      This portal serves as an informational tool to help users quickly view financial records and streamline vehicle verification processes.</p>
+    </div>
+
+    <footer>
+      &copy; 2026 Vehicle Loan & EMI Checker. All rights reserved.
+    </footer>
   </div>
 
-  <script>function generateNOC(vehicleData) {
-  const nocContent = `
-=================================================
-             NO OBJECTION CERTIFICATE
-=================================================
-
-Date: ${new Date().toLocaleDateString()}
-
-To Whom It May Concern,
-
-This is to certify that Vehicle Number: ${vehicleData.rc_regn_no || 'N/A'}
-Owner Name: ${vehicleData.rc_owner_name || 'N/A'}
-Engine No: ${vehicleData.rc_eng_no || 'N/A'}
-Chassis No: ${vehicleData.rc_chasi_no || 'N/A'}
-
-Financier Status: ${vehicleData.rc_financer || 'NO HYPOTHECATION / CLEAR'}
-
-This vehicle has no pending objections as per available RTO records.
-
-=================================================
-  `;
-
-  const blob = new Blob([nocContent], { type: 'text/plain' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `NOC_${vehicleData.rc_regn_no || 'Vehicle'}.txt`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
+  <script>
     async function checkVehicle() {
       const vehicleNo = document.getElementById('vehicleNo').value.trim();
       const loader = document.getElementById('loader');
@@ -314,7 +368,6 @@ This vehicle has no pending objections as per available RTO records.
         document.getElementById('pendingEmi').innerText = details.pending_emi || details.total_pending_emi || '0';
         document.getElementById('overdueAmt').innerText = details.overdue_amount ? '₹' + details.overdue_amount : '₹0';
 
-        // Show NOC button if no overdue
         if (!details.overdue_amount || details.overdue_amount == 0) {
           nocBtn.style.display = 'flex';
         } else {
